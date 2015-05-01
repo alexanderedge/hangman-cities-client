@@ -60,7 +60,7 @@ class GameTableViewController : UITableViewController {
     }
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier(CellIdentifier, forIndexPath: indexPath) as GameCell
+        let cell = tableView.dequeueReusableCellWithIdentifier(CellIdentifier, forIndexPath: indexPath) as! GameCell
         
         let game = games[indexPath.row]
         cell.wordLabel?.attributedText = NSAttributedString(string: game.displayString, attributes: [NSKernAttributeName : 5.0])
@@ -102,14 +102,12 @@ class GameTableViewController : UITableViewController {
             alert.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: "Cancel"), style: .Cancel, handler: nil))
             alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: "OK"), style: UIAlertActionStyle.Default, handler: { action in
                 if let textField = alert.textFields?.first as? UITextField {
-                    
-                    NSLog("send \(textField.text)")
-                    
-                    let letter = textField.text
-                    game.guessLetter(letter, completion: { error in
+                    let letter = textField.text.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
+                    game.guessLetter(letter, completion: { (updatedGame : Game?, error: NSError?) -> Void in
                         if (error != nil) {
                             self.showError(error!)
                         } else {
+                            self.games[indexPath.row] = updatedGame!
                             tableView.reloadData()
                         }
                     })
